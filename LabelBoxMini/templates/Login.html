@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+  {% block content %}
+  <span class="back-arrow" onclick="window.location.href='http://127.0.0.1:5000/index/';">&#8592;</span>
+  <section id="login">
+    <div class="container login-container">
+      <div class="row">
+        <div class="col-md-6 login-form-1">
+          <h3>User</h3>
+          <form method='POST'>
+            <input type="hidden" name='name' value='userlogin' />
+            <div class="form-group">
+              <input name='usermail'type="text" class="form-control" placeholder="Your email *" value="" minlength="6" maxlength="20" />
+            </div>
+            <div class="form-group">
+              <input name='password' type="password" class="form-control" placeholder="Your password *" value="" minlength="6" maxlength="20" />
+            </div>
+            <div class="form-group">
+              <input type="submit" class="btnSubmit" value="Login" />
+            </div>
+            <div class="form-group">
+              <a href="#" class="ForgetPwd">Forgot your password?</a>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-6 login-form-2">
+          <div class="login-logo">
+            <button onclick="document.getElementById('id01').style.display='block';" style="width: auto" id="modalopener" class="logo-btn">Register</button>
+          </div>
+          <h3>Admin</h3>
+          <form method='POST'>
+            <input type="hidden" name='name' value='adminlogin' />
+            <div class="form-group">
+              <input name='usermail'type="text" class="form-control" placeholder="Your email *" value="" minlength="6" maxlength="20"/>
+            </div>
+            <div class="form-group">
+              <input name='password' type="password" class="form-control" placeholder="Your password *" value="" minlength="6" maxlength="20"/>
+            </div>
+            <div class="form-group">
+              <input type="submit" class="btnSubmit" value="Login" />
+            </div>
+            <div class="form-group">
+              <a href="http://127.0.0.1:5000/Dashboard/" class="ForgetPwd">Forgot your password?</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="signup">
+    <div id="id01" class="modal">
+      <span onclick="document.getElementById('id01').style.display='none';document.querySelector('.login-container').style.filter='blur(0px)';" class="close" title="Close Modal">&times;</span>
+      <div class="signup-form" style="margin-left: auto; margin-right: auto; width: 500px">
+        <h3>Sign Up</h3>
+        <form method='POST'>
+          <input type="hidden" name='name' value='signup'  />
+          <div class="form-group">
+            <input type="text" name='firstname' class="form-control" placeholder="Nom *" value="" minlength="6" maxlength="20" />
+          </div>
+          <div class="form-group">
+            <input type="text" name='surname' class="form-control" placeholder="Prenom *" value="" minlength="6" maxlength="20" />
+          </div>
+          <div class="form-group">
+            <input type="text" name='email' class="form-control" placeholder="Email *" value=""  />
+          </div>
+          <div class="form-group">
+            <input type="password" name='password' class="form-control" placeholder="Mot de passe *" value="" minlength="8" maxlength="20"/>
+          </div>
+          <div class="form-group">
+            <input type="password" name='confirmedpassword' class="form-control" placeholder="Confirmation Mot de passe *" value="" minlength="8" maxlength="20" />
+          </div>
+          <div class="form-group">
+            <input type="submit" class="btnSubmit" value="Submit" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    var modal = document.getElementById("id01");
+    var c = document.querySelector('.login-container');
+    var modalopener = document.getElementById("modalopener");
+
+    modalopener.addEventListener('click', function () {
+      c.style.filter = "blur(5px)";
+    });
+
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        c.style.filter = "blur(0px)";
+        modal.style.display = "none";
+      }
+    };
+  </script>
+  {% endblock %}

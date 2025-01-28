@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+    {% block content %}
+    <main>
+        <h2>Everything you need to build and deploy computer vision applications.</h2>
+        <p>Used by over 1 million engineers to create datasets, train models, and deploy to production.</p>
+        <div class="btn-group">
+            <button class="primary-btn" onclick="showAlert('Get Started Clicked')"><a href='http://127.0.0.1:5000/Login/'>Get Started</a></button>
+            <button class="secondary-btn" onclick="showAlert('Request a Demo Clicked')">Request a Demo</button>
+        </div>
+        <div class="image-container">
+            <img id="mainImage" src="https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/blogs/22606/images/b80886-de54-602b-81d2-f0425b17e04_shutterstock_668209624-1.jpeg" alt="Placeholder Image">
+            <div class="button-group">
+                <button onclick="changeImage('https://kajabi-storefronts-production.kajabi-cdn.com/kajabi-storefronts-production/file-uploads/blogs/22606/images/1446e76-f181-6047-4e73-8d8ba3c6a50e_object_detection_1.webp')">Detection</button>
+                <button onclick="changeImage('https://user-images.githubusercontent.com/62513924/196107891-bb8124de-99c6-4039-b556-2ade403bd985.png')">Tracking</button>
+                <button onclick="changeImage('https://user-images.githubusercontent.com/62513924/196107891-bb8124de-99c6-4039-b556-2ade403bd985.png')">Counting</button>
+                <button onclick="changeImage('https://user-images.githubusercontent.com/62513924/196107891-bb8124de-99c6-4039-b556-2ade403bd985.png')">Analysis</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <div id="section1" class="section">
+        <h2>Our Features</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Fast Training</h3>
+                <p>Speed up your model training with optimized tools that reduce processing time.</p>
+            </div>
+            <div class="feature">
+                <h3>Seamless Integration</h3>
+                <p>Easily integrate our platform with your existing tools and workflows.</p>
+            </div>
+            <div class="feature">
+                <h3>Scalable Models</h3>
+                <p>Build and deploy models that can scale to meet your needs, no matter the size.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div id="section2" class="section">
+        <h2>What Our Users Say</h2>
+        <div class="testimonials">
+            <div class="testimonial">
+                <img src="https://randomuser.me/api/portraits/men/10.jpg" alt="User 1">
+                <h3>John Doe</h3>
+                <p>"This platform has revolutionized how we build and deploy AI models. Highly recommend!"</p>
+            </div>
+            <div class="testimonial">
+                <img src="https://randomuser.me/api/portraits/women/10.jpg" alt="User 2">
+                <h3>Jane Smith</h3>
+                <p>"I love the intuitive UI and powerful features. It makes our work so much easier."</p>
+            </div>
+            <div class="testimonial">
+                <img src="https://randomuser.me/api/portraits/men/20.jpg" alt="User 3">
+                <h3>Sarah Lee</h3>
+                <p>"Great support and a fast way to get models into production. Truly a game-changer."</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 LabelBox. All rights reserved. <br>
+        <a href="#section1">Privacy Policy</a> | <a href="#section2">Terms of Service</a></p>
+    </footer>
+
+    <script>
+        function showAlert(message) {
+            alert(message);
+        }
+
+        function changeImage(imageUrl) {
+            document.getElementById('mainImage').src = imageUrl;
+        }
+
+        // Detect when the sections come into view
+        function fadeInOnScroll() {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= window.innerHeight * 0.8) {
+                    section.style.opacity = 1;
+                }
+            });
+        }
+
+        window.addEventListener('scroll', fadeInOnScroll);
+        fadeInOnScroll();  // Initial check
+
+        document.querySelectorAll('.navbar ul li a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = e.target.getAttribute('href').substring(1);
+                document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+    {% endblock %}

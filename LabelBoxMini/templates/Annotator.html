@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotation Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Annotator.css') }}"> 
+</head>
+<body>
+    <div class="container">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="tool-btn" title="Draw Rectangle" id="draw-btn">+</button>
+        </div>
+
+        <!-- Annotation Canvas with Navigation Buttons -->
+        <div class="canvas-container">
+            <button class="nav-btn" id="prev-btn">⟨</button>
+            <div class="canvas" id="canvas"></div>
+            <button class="nav-btn" id="next-btn">⟩</button>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h3>Annotations</h3>
+            <table id="annotations-table">
+                <thead>
+                    <tr>
+                        <th>CLASS</th>
+                        <th>X1</th>
+                        <th>Y1</th>
+                        <th>X2</th>
+                        <th>Y2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Annotation rows will be added here dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Popup Form -->
+        <div class="popup" id="popup">
+            <h3>Annotation Editor</h3>
+            <label for="label"> Class :</label>
+            <br />
+            <input type="text" class='annotation-class' id="label" placeholder="Enter class">
+            <button id="save-btn">Save</button>
+            <button id="delete-btn">Delete</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const popup = document.getElementById('popup');
+        const labelInput = document.getElementById('label');
+        const annotationsTable = document.getElementById('annotations-table').getElementsByTagName('tbody')[0];
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        let isDrawing = false;
+        let currentBox = null;
+        let annotations = {};
+        let isPopupActive = false; // Flag to track if popup is active
+        let currentImageIndex = 0;
+        let projectImages = [];
+
+        // Fetch project images
+        function loadProjectImages(projectId) {
+            fetch(`/get_project_images/${projectId}/`)
+                .then(response => response.json())
+                .then(images => {
+                    console.log('Fetched images:', images); // Debugging
+                    
+                    projectImages = images;
+                    if (projectImages.length > 0) {
+                        displayImage(currentImageIndex);
+                    }
+                })
+                .catch(error => console.error('Error fetching project images:', error));
+        }
+
+        // Display image on canvas
+        function displayImage(index) {
+            if (index >= 0 && index < projectImages.length) {
+                const image = projectImages[index];
+                const imageUrl = image.url;
+                currentImageId = image.id; // Store the current image ID
+
+
+                console.log('Displaying image:', imageUrl); // Debugging
+                canvas.style.backgroundImage = `url(${imageUrl})`;
+                canvas.style.backgroundSize = 'cover';
+                canvas.style.backgroundRepeat = 'no-repeat';
+                canvas.style.backgroundPosition = 'center';
+                updateAnnotationsTable();
+            }
+        }
+
+        // Navigate to previous image
+        prevBtn.addEventListener('click', () => {
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                displayImage(currentImageIndex);
+            }
+        });
+
+        // Navigate to next image
+        nextBtn.addEventListener('click', () => {
+            if (currentImageIndex < projectImages.length - 1) {
+                currentImageIndex++;
+                displayImage(currentImageIndex);
+            }
+        });
+
+        // Enable drawing mode
+        document.getElementById('draw-btn').addEventListener('click', () => {
+            canvas.style.cursor = 'crosshair';
+        });
+
+        // Start drawing a bounding box
+        canvas.addEventListener('mousedown', (e) => {
+            if (canvas.style.cursor === 'crosshair' && !isPopupActive) {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                const startX = e.clientX - rect.left;
+                const startY = e.clientY - rect.top;
+
+                currentBox = document.createElement('div');
+                currentBox.classList.add('annotation-box');
+                currentBox.style.left = `${startX}px`;
+                currentBox.style.top = `${startY}px`;
+                canvas.appendChild(currentBox);
+
+                currentBox.dataset.startX = startX;
+                currentBox.dataset.startY = startY;
+            }
+        });
+
+        // Update the bounding box size while dragging
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing && currentBox) {
+                const rect = canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                const startX = parseFloat(currentBox.dataset.startX);
+                const startY = parseFloat(currentBox.dataset.startY);
+
+                currentBox.style.width = `${Math.abs(currentX - startX)}px`;
+                currentBox.style.height = `${Math.abs(currentY - startY)}px`;
+                currentBox.style.left = `${Math.min(currentX, startX)}px`;
+                currentBox.style.top = `${Math.min(currentY, startY)}px`;
+            }
+        });
+
+        // Finish drawing and open popup
+        canvas.addEventListener('mouseup', () => {
+            if (isDrawing) {
+                isDrawing = false;
+                popup.classList.add('active');
+                labelInput.value = '';
+                isPopupActive = true; // Set popup active flag
+                canvas.style.cursor = 'default';
+            }
+        });
+
+        // Save annotation
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const label = labelInput.value;
+            if (label && currentBox) {
+                const labelElement = document.createElement('span');
+                labelElement.classList.add('annotation-label');
+                labelElement.innerText = label;
+                currentBox.appendChild(labelElement);
+        
+                const rect = currentBox.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const annotation = {
+                    project_id: projectId, // Use the project_id passed from Flask
+                    image_id: currentImageId,
+                    label: label,
+                    coordinates: [
+                        (rect.left - canvasRect.left).toFixed(2),
+                        (rect.top - canvasRect.top).toFixed(2),
+                        (rect.right - canvasRect.left).toFixed(2),
+                        (rect.bottom - canvasRect.top).toFixed(2),
+                    ],
+                };
+        
+                // Send annotation to the server
+                fetch('/save_annotation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(annotation),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    if (!annotations[currentImageIndex]) {
+                        annotations[currentImageIndex] = [];
+                    }
+                    annotations[currentImageIndex].push(annotation);
+                    updateAnnotationsTable();
+                    popup.classList.remove('active');
+                    currentBox = null;
+                    isPopupActive = false; // Reset popup active flag
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            } else {
+                // Remove the annotation box if label is empty
+                if (currentBox) {
+                    currentBox.remove();
+                    currentBox = null;
+                }
+                popup.classList.remove('active');
+                isPopupActive = false; // Reset popup active flag
+            }
+        });
+
+        // Delete current annotation
+        document.getElementById('delete-btn').addEventListener('click', () => {
+            if (currentBox) {
+                currentBox.remove();
+                currentBox = null;
+                popup.classList.remove('active');
+                isPopupActive = false; // Reset popup active flag
+            }
+        });
+
+        // Update annotations table
+        function updateAnnotationsTable() {
+            annotationsTable.innerHTML = ''; // Clear existing rows
+            if (annotations[currentImageIndex]) {
+                annotations[currentImageIndex].forEach(annotation => {
+                    const row = annotationsTable.insertRow();
+                    const labelCell = row.insertCell(0);
+                    const X1 = row.insertCell(1);
+                    const Y1 = row.insertCell(2);
+                    const X2 = row.insertCell(3);
+                    const Y2 = row.insertCell(4);
+                    labelCell.textContent = annotation.label;
+                    X1.textContent =annotation.coordinates[0];
+                    Y1.textContent =annotation.coordinates[1];
+                    X2.textContent =annotation.coordinates[2];
+                    Y2.textContent =annotation.coordinates[3];
+                });
+            }
+        }
+
+        // Load project images
+        const projectId = {{ project_id }}; // Use the project_id passed from Flask
+        loadProjectImages(projectId);
+    </script>
+</body>
+</html>

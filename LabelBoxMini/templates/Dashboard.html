@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roboflow Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='Dashboard.css') }}">
+</head>
+<body>
+     <aside class="sidebar" id="sidebar">
+       <button class="sidebar-toggle-btn" onclick="toggleSidebar()"> <i class="fas fa-bars"></i></button>
+        <h1>LabelBox</h1>
+        <ul>
+            <li><a href="http://127.0.0.1:5000/dashboard/"><i class="fas fa-folder"></i><span>Projects</span></a></li>
+            <li><a href="#workflows"><i class="fas fa-cogs"></i><span>Workflows</span></a></li>
+            <li><a href="#monitoring"><i class="fas fa-chart-line"></i><span>Monitoring</span></a></li>
+             <li><a href="#deployments"><i class="fas fa-rocket"></i><span>Deployments</span></a></li>
+            <li><a href="#notifications"><i class="fas fa-bell"></i><span>Notifications</span></a></li>
+            <li><a href="#settings"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+            <li><a href="#universe"><i class="fas fa-globe"></i><span>Universe</span></a></li>
+            <li><a href="#documentation"><i class="fas fa-book"></i><span>Documentation</span></a></li>
+            <li><a href="#help"><i class="fas fa-question-circle"></i><span>Help</span></a></li>
+            <li><a href="/Logout/"><i class="fas fa-sign-out-alt"></i><span>Log out</span></a></li>
+        </ul>
+         <button class="upgrade-btn"> <i class="fas fa-arrow-up"></i> <span>Upgrade</span></button>
+     </aside>
+
+    <main class="main-content" id="mainContent">
+          <div class="top-bar">
+            <h2>Dashboard - Projects</h2>
+            <div class="actions">
+                 <button>B +1</button>
+                  <button>Invite Members</button>
+                  <button onclick="openUploadModal()">+ New Project</button>
+            </div>
+        </div>
+        <div class="search-sort">
+            <input type="text" placeholder="Search projects">
+            <select>
+                <option>Sort: Date Edited</option>
+                <option>Sort: Name</option>
+                 <option>Sort: Images</option>
+            </select>
+        </div>
+       <div class="project-grid" id="projectGrid">
+            <!-- Project cards will be added here -->
+        </div>
+    </main>
+
+
+    <!-- The Modal for New Project -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">×</span>
+            <h2>Create New Project</h2>
+            <form class="project-form" method="POST" action="{{ url_for('dashboard.create_project') }}" enctype="multipart/form-data">
+                <label for="projectName">Project Name:</label>
+                <input type="text" id="projectName" name="projectName" required>
+            
+                <label for="projectDescription">Description:</label>
+                <textarea id="projectDescription" name="projectDescription"></textarea>
+            
+                <label for="imageUpload">Upload Images:</label>
+                <input type="file" id="imageUpload" name="imageUpload" accept="image/*" multiple onchange="previewImages(this)">
+                <div id="imagePreview"></div>
+                <button type="button" id="viewUploadsBtn" onclick="openImageGridModal()">View Uploads</button>
+                <input type="submit" class="btnSubmit"  value="Create Project" />
+                <button type="button"  class='btnSubmit' onclick="window.location.href = 'http://127.0.0.1:5000/Annotate/';">Start Annotating</button>
+               
+            </form>
+        </div>
+    </div>
+
+
+    <!-- The Modal for Editing Project -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeEditModal()">×</span>
+            <h2>Edit Project</h2>
+            <form id="editProjectForm" class="project-form" method="POST" enctype="multipart/form-data">
+                <input type="hidden" id="editProjectId" name="projectId">
+                <label for="editProjectName">Project Name:</label>
+                <input type="text" id="editProjectName" name="projectName" required>
+            
+                <label for="editProjectDescription">Description:</label>
+                <textarea id="editProjectDescription" name="projectDescription"></textarea>
+            
+                <label for="editImageUpload">Upload Images:</label>
+                <input type="file" id="editImageUpload" name="imageUpload" accept="image/*" multiple onchange="previewEditImages(this)">
+                <div id="editImagePreview"></div>
+                <button type="button" id="viewEditUploadsBtn" onclick="openEditImageGridModal()">View Uploads</button>
+                <input type="submit" class="btnSubmit" value="Update Project">
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <!-- The Modal for Viewing Uploaded Images -->
+    <div id="imageGridModal" class="image-grid-modal">
+        <div class="image-grid-content">
+            <span class="close-image-grid" onclick="closeImageGridModal()">×</span>
+            <h3>Uploaded Images</h3>
+            <div class="image-grid" id="uploadedImagesGrid">
+                <!-- Images will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- The Modal for Viewing Edited Uploaded Images -->
+    <div id="EditimageGridModal" class="Edit-image-grid-modal">
+        <div class="Edit-image-grid-content">
+            <span class="close-Edit-image-grid" onclick="closeEditImageGridModal()">×</span>
+            <h3>Uploaded Images</h3>
+            <div class="Edit-image-grid" id="uploadedEditImagesGrid">
+                <!-- Images will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchProjects();
+    });
+
+    function fetchProjects() {
+        fetch('/get_projects/')
+            .then(response => response.json())
+            .then(projects => {
+                renderProjects(projects);
+            })
+            .catch(error => console.error('Error fetching projects:', error));
+    }
+
+    function renderProjects(projects) {
+        const projectGrid = document.getElementById('projectGrid');
+        projectGrid.innerHTML = ''; // Clear existing projects
+        projects.forEach(project => {
+            const projectCard = createProjectCard(project);
+            projectGrid.appendChild(projectCard);
+        });
+    }
+
+    function createProjectCard(project) {
+        const card = document.createElement('div');
+        console.log(project.images[0])
+        card.classList.add('project-card');
+        card.innerHTML = `
+            <img src="/api/images/${project.images[0]}/" alt="${project.name}">
+            <div class="details">
+                <div>
+                    <h3>${project.name}</h3>
+                    <p>Edited ${project.edited_ago}</p>
+                    <p>${project.privacy} • ${project.image_count} Images • ${project.model_count} Models</p>
+                </div>
+                <div class="menu" onclick="toggleMenu(this)">
+                    ⋮
+                    <div class="menu-dropdown">
+                        <button onclick="editProject(${project.id})">Edit</button>
+                        <button onclick="deleteProject(${project.id})">Delete</button>
+                        <button onclick="window.location.href = 'http://127.0.0.1:5000/Annotate/${project.id}/';">Annotate</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
+    function toggleMenu(menu) {
+        const dropdown = menu.querySelector('.menu-dropdown');
+        dropdown.classList.toggle('active');
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+
+    function openUploadModal() {
+        const modal = document.getElementById('uploadModal');
+        const mainContent = document.getElementById('mainContent');
+        modal.style.display = 'flex';
+        mainContent.classList.add('blur');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('uploadModal');
+        const mainContent = document.getElementById('mainContent');
+        modal.style.display = 'none';
+        mainContent.classList.remove('blur');
+        document.getElementById('imagePreview').innerHTML = ''; // Clear previews
+        document.getElementById('viewUploadsBtn').style.display = 'none'; // Hide the button
+        uploadedImages = []; // Clear the uploaded images array
+        document.getElementById('projectName').value = '';
+        document.getElementById('projectDescription').value = '';
+        document.getElementById('imageUpload').value = '';
+    }
+
+    let uploadedImages = []; // Array to store uploaded image data URLs
+
+    function previewImages(input) {
+        const preview = document.getElementById('imagePreview');
+        const viewUploadsBtn = document.getElementById('viewUploadsBtn');
+        preview.innerHTML = '';
+        uploadedImages = []; // Clear previous uploads
+
+        if (input.files) {
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    <!-- img.src = e.target.result -->
+                    img.classList.add('preview-image');
+                    preview.appendChild(img);
+                    uploadedImages.push(e.target.result); // Store the data URL
+                }
+                reader.readAsDataURL(file);
+            });
+            viewUploadsBtn.style.display = 'block'; // Show the "View Uploads" button
+        } else {
+            viewUploadsBtn.style.display = 'none'; // Hide the button if no files are selected
+        }
+    }
+
+    function openImageGridModal() {
+        const imageGridModal = document.getElementById('imageGridModal');
+        const mainContent = document.getElementById('mainContent');
+        const uploadedImagesGrid = document.getElementById('uploadedImagesGrid');
+
+        uploadedImagesGrid.innerHTML = ''; // Clear previous images in the grid
+
+        uploadedImages.forEach(imageDataUrl => {
+            const img = document.createElement('img');
+            img.src = imageDataUrl;
+            uploadedImagesGrid.appendChild(img);
+        });
+
+        imageGridModal.style.display = 'flex';
+        mainContent.classList.add('blur');
+    }
+
+    function closeImageGridModal() {
+        const imageGridModal = document.getElementById('imageGridModal');
+        const mainContent = document.getElementById('mainContent');
+        imageGridModal.style.display = 'none';
+        mainContent.classList.remove('blur');
+    }
+
+    function createProject() {
+        const projectName = document.getElementById('projectName').value;
+        const projectDescription = document.getElementById('projectDescription').value;
+
+        if (projectName.trim() === '') {
+            alert('Please enter a project name.');
+            return;
+        }
+
+        const newProject = {
+            id: ++projectIdCounter,
+            name: projectName,
+            description: projectDescription,
+            editedAgo: 'just now',
+            privacy: 'Private', // You might want to add a way to set this
+            imageCount: uploadedImages.length,
+            modelCount: 0, // Initially 0
+            imageUrls: [...uploadedImages] // Use spread operator to copy the array
+        };
+
+        projects.push(newProject);
+        renderProjects();
+        closeModal();
+    }
+
+    let editUploadedImages = []; // Array to store uploaded image data URLs for editing
+
+    function editProject(projectId) {
+        fetch(`/get_projects/${projectId}/`)
+            .then(response => response.json())
+            .then(project => {
+                document.getElementById('editProjectId').value = project.id;
+                document.getElementById('editProjectName').value = project.name;
+                document.getElementById('editProjectDescription').value = project.description;
+                editUploadedImages = project.images.map(imageId => `/api/images/${imageId}`);
+                previewEditImages();
+                openEditModal();
+            })
+            .catch(error => console.error('Error fetching project:', error));
+    }
+
+    function openEditModal() {
+        const modal = document.getElementById('editModal');
+        const mainContent = document.getElementById('mainContent');
+        modal.style.display = 'flex';
+        mainContent.classList.add('blur');
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editModal');
+        const mainContent = document.getElementById('mainContent');
+        modal.style.display = 'none';
+        mainContent.classList.remove('blur');
+        document.getElementById('editImagePreview').innerHTML = ''; // Clear previews
+        document.getElementById('viewEditUploadsBtn').style.display = 'none'; // Hide the button
+        editUploadedImages = []; // Clear the uploaded images array
+        document.getElementById('editProjectName').value = '';
+        document.getElementById('editProjectDescription').value = '';
+        document.getElementById('editImageUpload').value = '';
+    }
+
+    function openEditImageGridModal() {
+        const imageGridModal = document.getElementById('EditimageGridModal');
+        const mainContent = document.getElementById('mainContent');
+        const uploadedImagesGrid = document.getElementById('uploadedEditImagesGrid');
+
+        uploadedImagesGrid.innerHTML = ''; // Clear previous images in the grid
+
+        editUploadedImages.forEach(imageDataUrl => {
+            const img = document.createElement('img');
+            img.src = imageDataUrl;
+            uploadedImagesGrid.appendChild(img);
+        });
+
+        imageGridModal.style.display = 'flex';
+        mainContent.classList.add('blur');
+    }
+
+    function closeEditImageGridModal() {
+        const imageGridModal = document.getElementById('EditimageGridModal');
+        const mainContent = document.getElementById('mainContent');
+        imageGridModal.style.display = 'none';
+        mainContent.classList.remove('blur');
+    }
+
+    function previewEditImages(input) {
+        const preview = document.getElementById('editImagePreview');
+        const viewUploadsBtn = document.getElementById('viewEditUploadsBtn');
+        preview.innerHTML = '';
+        editUploadedImages = []; // Clear previous uploads
+
+        if (input && input.files) {
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    <!-- img.src = e.target.result; -->
+                    img.classList.add('preview-image');
+                    preview.appendChild(img);
+                    editUploadedImages.push(e.target.result); // Store the data URL
+                }
+                reader.readAsDataURL(file);
+            });
+            viewUploadsBtn.style.display = 'block'; // Show the "View Uploads" button
+        } else {
+            viewUploadsBtn.style.display = 'none'; // Hide the button if no files are selected
+        }
+    }
+
+    document.getElementById('editProjectForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const projectId = document.getElementById('editProjectId').value;
+        const projectName = document.getElementById('editProjectName').value;
+        const projectDescription = document.getElementById('editProjectDescription').value;
+        const formData = new FormData();
+        formData.append('projectName', projectName);
+        formData.append('projectDescription', projectDescription);
+        const imageUpload = document.getElementById('editImageUpload');
+        Array.from(imageUpload.files).forEach(file => {
+            formData.append('imageUpload', file);
+        });
+
+        fetch(`/edit_project/${projectId}/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchProjects(); // Re-fetch and re-render projects after update
+                closeEditModal();
+            } else {
+                alert('Error updating project: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error updating project:', error));
+    });
+
+    function deleteProject(projectId) {
+        fetch(`/delete_projects/${projectId}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchProjects(); // Re-fetch and re-render projects after deletion
+            } else {
+                alert('Error deleting project: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error deleting project:', error));
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.menu')) {
+            document.querySelectorAll('.menu-dropdown.active').forEach(dropdown => {
+              dropdown.classList.remove('active');
+            });
+        }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+    /* General Styling */
+    body, html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Prevent scrolling */
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background-color: #1e1e2f;
+        color: #c7c7c7;
+    }
+    
+    /* Container Layout */
+    .container {
+        display: flex;
+        width: 100%;
+        height: 100%; /* Ensure the container takes the full height */
+    }
+    
+    /* Toolbar */
+    .toolbar {
+        width: 60px;
+        background: #27293d;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        margin-top: 8px;
+    }
+    
+    .tool-btn {
+        background: #3b3e59;
+        border: none;
+        color: #c7c7c7;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .tool-btn:hover {
+        background: #18d9d7;
+    }
+    
+    /* Canvas Container */
+    .canvas-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        position: relative;
+        margin-top: 50px;
+        margin-left: 50px;
+        margin-right: 50px;
+        width: 100%;
+    }
+    
+    /* Navigation Buttons */
+    .nav-btn {
+        background: #3b3e59;
+        border: none;
+        color: #c7c7c7;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: background 0.3s ease;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    
+    .nav-btn:hover {
+        background: #18d9d7;
+    }
+    
+    #prev-btn {
+        left: -50px; /* Adjust as needed to position outside the canvas */
+    }
+    
+    #next-btn {
+        right: -50px; /* Adjust as needed to position outside the canvas */
+    }
+    
+    /* Canvas Area */
+    .canvas {
+        flex: 1;
+        position: relative;
+        background: rgb(5, 9, 47);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        margin-top: 40px;
+        margin-bottom: 80px;
+        border-radius: 0px;
+    }
+    
+    .annotation-box {
+        position: absolute;
+        border: 2px solid #9b51e0;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+        width: 300px;
+        background: #27293d;
+        padding: 10px;
+        border-left: 1px solid #3b3e59;
+        border-radius: 20px;
+        margin-right: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .sidebar h3 {
+        margin: 0 0 10px 0;
+        margin-left: 95px;
+        color: #18d9d7;
+    }
+    
+    .sidebar table {
+        width: 100%;
+        border-collapse: collapse;
+        
+    }
+    
+    .sidebar th, .sidebar td {
+        border: 1px solid #000000;
+        
+        padding: 8px;
+        text-align: left;
+    }
+    
+    .sidebar th {
+        background: #3b3e59;
+    }
+    
+    .sidebar td {
+        background: #2b2d42;
+        color: #c7c7c7;
+    }
+    
+    /* Popup */
+    .popup {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #27293d;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        color: #c7c7c7;
+        width: 300px;
+    }
+    
+    .popup.active {
+        display: block;
+    }
+    
+    .popup h3 {
+        color: #18d9d7;
+    }
+    
+    .popup button {
+        padding: 8px 12px;
+        margin: 10px 5px 0 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .popup #save-btn {
+        background: #18d9d7;
+        color: #fff;
+    }
+    
+    .popup #delete-btn {
+        background: #e63946;
+        color: #fff;
+    }
+    
+    .popup input {
+        width: 90%;
+        padding: 8px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #3b3e59;
+        border-radius: 4px;
+        background: #2b2d42;
+        color: #c7c7c7;
+    }
