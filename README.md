@@ -83,6 +83,12 @@ LabelBoxWebsite/
 3. **Access the Application:**
    Open your web browser and go to `http://127.0.0.1:5000/`.
 
+**Project Demo**
+[![Watch the video]((https://github.com/GboyeStack-Robotics-ML-Engineer/LabelBoxMini/other files/Screenshot (3).png))](https://www.canva.com/design/DAGi1LjMz7s/ZKMqv8ulKTi4JW7ls4Vt7w/watch?utm_content=DAGi1LjMz7s&utm_campaign=designshare&utm_medium=embeds&utm_source=link)
+
+
+
+
 ## License
 
 This project is licensed under the MIT License.
