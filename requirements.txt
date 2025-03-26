@@ -12,4 +12,4 @@ streamlit==1.40.1
 streamlit==1.34.0
 streamlit_image_annotation==0.4.0
 Werkzeug==2.2.3
-~treamlit==1.34.0
+
