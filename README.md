@@ -83,8 +83,13 @@ LabelBoxWebsite/
 3. **Access the Application:**
    Open your web browser and go to `http://127.0.0.1:5000/`.
 
-**Project Demo**
-[![Watch the video]((https://github.com/GboyeStack-Robotics-ML-Engineer/LabelBoxMini/other files/Screenshot (3).png))](https://www.canva.com/design/DAGi1LjMz7s/ZKMqv8ulKTi4JW7ls4Vt7w/watch?utm_content=DAGi1LjMz7s&utm_campaign=designshare&utm_medium=embeds&utm_source=link)
+## **Project Demo**
+![Screenshot (3)](https://github.com/user-attachments/assets/1cc3184f-cf53-4f90-a837-42e00efd1bcc)
+
+Link : https://www.canva.com/design/DAGi1LjMz7s/pZSjP3n6V9MnvavGcIBp5A/watch?utm_content=DAGi1LjMz7s&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2b5e81956f
+
+
+
 
 
 
